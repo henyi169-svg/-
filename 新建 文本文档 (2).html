@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>青锋暖行 · 地铁人格测试</title>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background: #eef2f5;
+            font-family: system-ui, -apple-system, 'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', Helvetica, sans-serif;
+            padding: 20px 16px 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .app-container {
+            max-width: 700px;
+            width: 100%;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 48px 32px 48px 32px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+        .quiz-panel, .result-panel { padding: 28px 24px 36px; }
+        .header { text-align: center; margin-bottom: 28px; }
+        .badge {
+            background: #1e3c72;
+            color: white;
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+        h1 { font-size: 28px; font-weight: 700; color: #0a2b44; }
+        .sub { color: #5e7b9c; margin-top: 8px; font-size: 15px; }
+        .question-item {
+            background: #f8fafd;
+            border-radius: 28px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 1px solid #e9edf2;
+        }
+        .q-text {
+            font-weight: 600;
+            font-size: 18px;
+            color: #1f3b4c;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .q-icon {
+            background: #cbdde9;
+            width: 28px;
+            height: 28px;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .options { display: flex; flex-wrap: wrap; gap: 12px; }
+        .option-btn {
+            flex: 1;
+            min-width: 120px;
+            background: white;
+            border: 1.5px solid #dce3ec;
+            border-radius: 60px;
+            padding: 10px 12px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #2c4c6e;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .option-btn.active {
+            background: #1e3c72;
+            border-color: #1e3c72;
+            color: white;
+        }
+        .submit-area { margin-top: 32px; text-align: center; }
+        .submit-btn {
+            background: linear-gradient(135deg, #FFA726, #FB8C00);
+            border: none;
+            padding: 14px 28px;
+            width: 80%;
+            border-radius: 60px;
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            box-shadow: 0 8px 18px rgba(251, 140, 0, 0.25);
+            cursor: pointer;
+        }
+        .result-card {
+            background: #ffffff;
+            border-radius: 48px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+            margin-bottom: 28px;
+            border: double 4px transparent;
+            background-image: linear-gradient(white, white), linear-gradient(135deg, #f0bc7a, #7eb0d5, #c0e0ff);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+        }
+        .card-inner { padding: 28px 24px 32px; background: #fff; border-radius: 44px; }
+        .personality-name { font-size: 30px; font-weight: 800; color: #1b3b4f; margin-bottom: 8px; }
+        .role-title { font-size: 20px; font-weight: 600; background: linear-gradient(120deg, #2b5876, #4e4376); -webkit-background-clip: text; background-clip: text; color: transparent; margin: 8px 0 8px; }
+        .desc-text {
+            color: #2c4f6e;
+            line-height: 1.45;
+            background: #f0f6fe;
+            padding: 16px 18px;
+            border-radius: 28px;
+            margin: 16px 0;
+            font-size: 15px;
+        }
+        .slogan {
+            font-size: 18px;
+            font-weight: 600;
+            color: #b45f2b;
+            text-align: center;
+            padding: 12px 0 0;
+            border-top: 2px dashed #ffe0b5;
+            margin-top: 6px;
+            font-style: italic;
+        }
+        .stamp-mark { text-align: right; font-size: 12px; margin-top: 10px; color: #d9b48b; display: flex; justify-content: flex-end; gap: 8px; }
+        .btn-group { display: flex; gap: 14px; margin-top: 18px; justify-content: center; }
+        .share-btn, .reset-btn { flex: 1; background: #f0f4f9; border: none; padding: 12px; border-radius: 60px; font-weight: 600; font-size: 16px; cursor: pointer; }
+        .share-btn { background: #2c6e9e; color: white; }
+        .reset-btn { background: #eef2f5; color: #3d6b92; border: 1px solid #cddfed; }
+        .footnote { text-align: center; margin-top: 20px; font-size: 12px; color: #98aec5; }
+        .hidden { display: none; }
+        @media (max-width: 550px) { .quiz-panel, .result-panel { padding: 20px 16px; } .personality-name { font-size: 26px; } }
+        .qrcode-hint { background: #eef3fc; border-radius: 60px; text-align: center; margin-top: 16px; padding: 10px; font-size: 13px; color: #1e4663; }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div id="quizPanel" class="quiz-panel">
+        <div class="header">
+            <div class="badge">🚇 青锋暖行 · 地铁人格</div>
+            <h1>🚊 你的地铁人格是什么？</h1>
+            <div class="sub">4道极简场景题 · 专属山海卡片</div>
+        </div>
+        <div id="questionsContainer"></div>
+        <div class="submit-area">
+            <button class="submit-btn" id="submitQuiz">✨ 生成专属性格卡片 ✨</button>
+        </div>
+        <div class="qrcode-hint">📱 分享好友｜扫码即测｜定格你的山海旅途</div>
+    </div>
+
+    <div id="resultPanel" class="result-panel hidden">
+        <div id="captureArea" class="result-card">
+            <div class="card-inner">
+                <div class="personality-name" id="personalityName">海风冒险家</div>
+                <div class="role-title" id="roleTitle">📌 客运服务先锋</div>
+                <div class="desc-text" id="descText">热情开朗，自带感染力，总能第一时间回应乘客需求，是车站里行走的小太阳。</div>
+                <div class="slogan" id="sloganText">🌊 愿你一路有风有海，所行皆是温柔</div>
+                <div class="stamp-mark"><span>✔️ 今日打卡成功</span> <span>📸 #青锋暖行</span></div>
+            </div>
+        </div>
+        <div class="btn-group">
+            <button class="share-btn" id="snapshotBtn">📸 拍照发圈 · 完成打卡</button>
+            <button class="reset-btn" id="resetTestBtn">🔄 重新测试</button>
+        </div>
+        <div class="footnote">点击保存卡片，分享朋友圈完成打卡 ✔️（测试仅供旅途趣味，请勿作为专业依据）</div>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        { text: "进站时你会？", options: ["A. 主动帮人刷卡、指路", "B. 默默找路线，尽量不打扰人"], dim: "EI" },
+        { text: "等车时你习惯？", options: ["A. 看站牌、听广播、留意细节", "B. 发呆、看海、想心事、幻想"], dim: "SN" },
+        { text: "赶不上车时你会？", options: ["A. 冷静查下一班、计算时间", "B. 有点小失落，发个心情朋友圈"], dim: "TF" },
+        { text: "出行前你会？", options: ["A. 查好路线、时间、出口，计划好", "B. 随缘走，想到哪坐到哪"], dim: "JP" }
+    ];
+
+    const personalityMap = {
+        "ENFP": { name: "海风冒险家", role: "客运服务先锋", desc: "热情开朗，自带感染力，总能第一时间回应乘客需求，是车站里行走的小太阳。", slogan: "愿你一路有风有海，所行皆是温柔" },
+        "INFP": { name: "落日理想家", role: "文艺宣传官", desc: "温柔细腻，偏爱日落与山海，擅长捕捉旅途里的浪漫与美好，用心记录每一刻温暖。", slogan: "落日归山海，心事皆温柔。" },
+        "ESTJ": { name: "秩序指挥官", role: "行车调度能手", desc: "思路清晰，沉稳靠谱，对路线、时间、换乘了如指掌，是保障出行顺畅的核心担当。", slogan: "一路有序，一路平安。" },
+        "ISTJ": { name: "细节守护者", role: "安全巡检专员", desc: "严谨认真，低调可靠，不放过任何一处细节，默默守护每一趟列车平稳出行。", slogan: "心细如尘，守护如常。" },
+        "ENFJ": { name: "山海治愈者", role: "暖心服务专员", desc: "温柔包容，善解人意，总能用一句话治愈疲惫旅人，用善意温暖整段行程。", slogan: "以温柔同行，予旅途安心。" },
+        "INFJ": { name: "深海思想家", role: "运营规划师", desc: "通透沉稳，目光长远，在喧嚣中保持清醒，为每一次出行提供更贴心的安排。", slogan: "内心自有山海，从容且坚定。" },
+        "ESFP": { name: "人间快乐客", role: "车站氛围担当", desc: "活泼随性，快乐至上，走到哪里就把欢笑带到哪里，让旅途轻松又有趣。", slogan: "一路自在，一路欢喜。" },
+        "ISFP": { name: "海岸艺术家", role: "车站美学设计师", desc: "审美出众，热爱光影与浪漫，擅长把平凡车站变成风景，让出行充满仪式感。", slogan: "眼里有光，所见皆浪漫。" }
+    };
+
+    let userAnswers = [null, null, null, null];
+
+    function renderQuestions() {
+        const container = document.getElementById('questionsContainer');
+        if (!container) return;
+        container.innerHTML = '';
+        questions.forEach((q, idx) => {
+            const qDiv = document.createElement('div');
+            qDiv.className = 'question-item';
+            qDiv.innerHTML = `<div class="q-text"><span class="q-icon">${idx+1}</span> ${q.text}</div><div class="options">${q.options.map(opt => `<div class="option-btn" data-val="${opt.charAt(0)}">${opt}</div>`).join('')}</div>`;
+            container.appendChild(qDiv);
+        });
+        document.querySelectorAll('.question-item').forEach((item, idx) => {
+            const btns = item.querySelectorAll('.option-btn');
+            btns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const selectedVal = btn.getAttribute('data-val');
+                    btns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const dim = questions[idx].dim;
+                    let chosenTrait = '';
+                    if (selectedVal === 'A') {
+                        if (dim === 'EI') chosenTrait = 'E';
+                        else if (dim === 'SN') chosenTrait = 'S';
+                        else if (dim === 'TF') chosenTrait = 'T';
+                        else if (dim === 'JP') chosenTrait = 'J';
+                    } else {
+                        if (dim === 'EI') chosenTrait = 'I';
+                        else if (dim === 'SN') chosenTrait = 'N';
+                        else if (dim === 'TF') chosenTrait = 'F';
+                        else if (dim === 'JP') chosenTrait = 'P';
+                    }
+                    userAnswers[idx] = chosenTrait;
+                });
+            });
+        });
+    }
+
+    function computeQMTI() {
+        if (userAnswers.some(a => a === null)) return null;
+        const type = userAnswers[0] + userAnswers[1] + userAnswers[2] + userAnswers[3];
+        return personalityMap[type] ? type : "ENFP";
+    }
+
+    function updateResultCard(typeCode) {
+        const data = personalityMap[typeCode];
+        if (!data) return;
+        document.getElementById('personalityName').innerText = data.name;
+        document.getElementById('roleTitle').innerHTML = `📌 ${data.role}`;
+        document.getElementById('descText').innerHTML = data.desc;
+        document.getElementById('sloganText').innerHTML = `✨ ${data.slogan}`;
+    }
+
+    function showResult(typeCode) {
+        updateResultCard(typeCode);
+        document.getElementById('quizPanel').classList.add('hidden');
+        document.getElementById('resultPanel').classList.remove('hidden');
+        document.getElementById('resultPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function handleSubmit() {
+        if (userAnswers.some(a => a === null)) { alert("🚇 请先完成全部4道场景题～"); return; }
+        const qmti = computeQMTI();
+        if (qmti) showResult(qmti);
+        else alert("遇到小问题，请刷新重试");
+    }
+
+    function resetTest() {
+        userAnswers = [null, null, null, null];
+        renderQuestions();
+        document.getElementById('quizPanel').classList.remove('hidden');
+        document.getElementById('resultPanel').classList.add('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function captureAndShare() {
+        const el = document.getElementById('captureArea');
+        const oldShadow = el.style.boxShadow;
+        el.style.boxShadow = '0 0 0 3px #f9e2b7, 0 12px 28px rgba(0,0,0,0.15)';
+        try {
+            const canvas = await html2canvas(el, { scale: 2.5, backgroundColor: '#fff', logging: false });
+            el.style.boxShadow = oldShadow;
+            const a = document.createElement('a');
+            a.download = 'qingfeng_card.png';
+            a.href = canvas.toDataURL('image/png');
+            a.click();
+            alert('✅ 打卡边框卡片已保存！快分享朋友圈 📸✨');
+        } catch(e) { el.style.boxShadow = oldShadow; alert('截图失败，可手动截图'); }
+    }
+
+    renderQuestions();
+    document.getElementById('submitQuiz').addEventListener('click', handleSubmit);
+    document.getElementById('resetTestBtn').addEventListener('click', resetTest);
+    document.getElementById('snapshotBtn').addEventListener('click', captureAndShare);
+</script>
+</body>
+</html>
